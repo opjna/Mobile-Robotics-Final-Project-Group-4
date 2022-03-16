@@ -2,6 +2,8 @@
 
 Final project for Mobile Robotics Course
 
+The notional idea is that we will be obtaining feature measurements from a depth camera. These measurements will be used to estimate the pose of a UAV in simulation.
+
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
