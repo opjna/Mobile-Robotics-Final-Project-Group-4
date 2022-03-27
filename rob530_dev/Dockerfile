@@ -20,6 +20,6 @@ RUN apt-get update && apt-get install -y \
 		&& rm -rf /var/lib/apt/lists/*
 
 # Install pip3 packages
-RUN pip3 install numpy scipy pyyaml matplotlib sympy
+RUN pip3 install numpy scipy pyyaml matplotlib sympy tk
 
 CMD ["bash"]
