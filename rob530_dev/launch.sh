@@ -19,7 +19,7 @@
 # Script Configuration
 source .env
 
-sudo docker run -it --rm \
+docker run -it --rm \
 	--name $CONTAINER_NAME \
 	--user=$USER_ID\
 	--net=host \
