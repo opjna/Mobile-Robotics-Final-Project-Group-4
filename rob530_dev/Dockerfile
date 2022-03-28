@@ -4,6 +4,7 @@ ARG BASE_IMAGE=osrf/ros:noetic-desktop
 FROM $BASE_IMAGE as base
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 		git \
+		git-lfs \
 		tmux \
 		curl \
 		wget \
