@@ -2,7 +2,7 @@ from scipy.stats import norm, expon, gamma, weibull_min, rayleigh, beta, binom, 
 import matplotlib.pyplot as plt; plt.ion()
 
 from scipy.optimize import minimize
-from tskew.tskew import getObjectiveFunction, tspdf_1d
+from tskew.tskew import getObjectiveFunction, tspdf_1d, tskew_moments
 
 import numpy as np
 
@@ -47,9 +47,9 @@ if __name__ == "__main__":
         distribution = dist_data[2]
 
         loc = np.mean(realization)
-        scale = np.std(realization)
-        df = 3
-        skew = 1
+        scale = np.var(realization)
+        df = 1000
+        skew = 0
 
         theta = np.array([loc, scale, df, skew])
 
@@ -68,4 +68,7 @@ if __name__ == "__main__":
         plt.title(f'{dist_name}-distributed data and estimated skew ' + r'$t$-distribution')
         plt.legend()
 
+        solution_params = res['x']
+        loc_est, scale_est, df_est, skew_est = solution_params
+        moments_from_est = tskew_moments(loc_est, scale_est, df_est, skew_est)
         pass

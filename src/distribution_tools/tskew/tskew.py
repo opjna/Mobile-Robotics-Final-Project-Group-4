@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 import scipy.interpolate
 from numbers import Number
@@ -10,13 +8,14 @@ import matplotlib.pyplot as plt; plt.ion()
 from scipy.integrate import quad
 from scipy.stats import t as scipy_trv
 from numba import cfunc
-from functools import partial
-import timeit
 from scipy.optimize import minimize
 import warnings
 import scipy.io as sio
 import scipy
 # from root_finding import newton, brentq
+
+from scipy.special import gamma
+
 
 plt.close('all')
 from numba import vectorize, njit
@@ -89,12 +88,16 @@ def tslogpdf_1d(x, loc, scale, df, skew):
     t = 0.5 * (df + dim)
     A = gammaln(t)
     B = gammaln(0.5 * df)
-    C = dim/2. * np.log(df * np.pi)
+    C = (dim/2.) * np.log(df * np.pi)
     D = 0.5 * logdet
     E = -t * np.log(1 + (1./df) * maha)
 
 
-    J = dev * skew
+    w = np.sqrt(scale)
+    J = dev * skew / w
+
+    # Old definition -- this works
+    # J = dev * skew
     rad = np.sqrt((dim + df) / (maha + df))
 
     Fval = tcdf_1d(J * rad, dim + df)
@@ -139,8 +142,6 @@ def getIntegrand(loc, scale, df, skew):
 
 
 def tscdf(x, loc, scale, df, skew):
-    # tscdf_vals = np.zeros_like(x)
-
     if isinstance(x, Number):
         x = np.array([x])
     integrand = getIntegrand(loc, scale, df, skew) # Closure that captures the parameters of the distribution
@@ -231,14 +232,14 @@ def root_Newton_Rhapson(fun, x0, jac, tol=1e-12, maxiter=100):
 
 def ts_invcdf(q, loc, scale, df, skew):
 
-    def f(x):
+    def ffun(x):
         return tscdf(x, loc, scale, df, skew) - q
 
     def fprime(x):
         return tspdf_1d(x, loc, scale, df, skew)
     # Do a single Newton iteration
     p0 = 0.0
-    fval = f(p0)
+    fval = ffun(p0)
     fder = fprime(p0)
     newton_step = fval / fder
     # Newton step
@@ -264,6 +265,21 @@ def numerical_inverse(rv_domain, cdf_vals):
     #     # return sampled_data
     #
     # return inv_fn
+
+def tskew_moments(loc, scale, df, skew):
+    w = np.sqrt(scale)
+    alpha = skew
+
+    omega = scale
+    omega_bar = scale / (w * w)
+
+    delta = (alpha * omega_bar) / np.sqrt(1 + alpha * omega_bar * alpha)
+
+    gamma_div = np.exp(gammaln(0.5 * (df -1)) - gammaln(0.5 * df))
+    mu = delta * np.sqrt(df / np.pi) * gamma_div
+
+    expected_value = omega * mu + loc
+    pass
 
 
 
