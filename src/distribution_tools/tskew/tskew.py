@@ -79,7 +79,6 @@ def tspdf_1d(x, loc, scale, df, skew):
 
 @njit
 def tslogpdf_1d(x, loc, scale, df, skew):
-    skew=0
     dim = 1
     vals, vecs = scale, np.array([1])
 
