@@ -87,12 +87,13 @@ if __name__ == "__main__":
         xvals = np.linspace(np.min(realization) - 0.1 * extent, np.max(realization) + 0.1 * extent, N)
 
         plt.figure()
+        plt.rc('axes', titlesize=20)
         est_pdf = tspdf_1d(xvals, res.x[0], res.x[1], res.x[2], res.x[3])
-        plt.hist(realization, bins=50, density=True)
-        plt.plot(xvals, distribution.pdf(xvals), label=f'True: {dist_name}', linewidth=5)
-        plt.plot(xvals, est_pdf, linestyle='--', label='Estimated skew t', linewidth=5)
-        plt.title(f'{dist_name}-distributed data and estimated skew ' + r'$t$-distribution')
-        plt.legend()
+        plt.hist(realization, bins=20, density=True, color='green', alpha=.5)
+        plt.plot(xvals, distribution.pdf(xvals), label=f'True: {dist_name}', linewidth=5, )#alpha=.5)
+        plt.plot(xvals, est_pdf, linestyle='--', label='Estimated skew t', linewidth=5, )#alpha=.5)
+        plt.title(f'{dist_name}-distributed data')
+        plt.legend(fontsize=12)
         plt.show()
 
         solution_params = res['x']
