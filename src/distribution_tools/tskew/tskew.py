@@ -3,6 +3,12 @@ import scipy.interpolate
 from numbers import Number
 
 np.seterr(all='raise')
+
+from .numbaSpecialFns import numba_gammaln as gammaln
+from .numbaSpecialFns import numba_hyp2f1 as hyp2f1
+from .numbaSpecialFns import numba_betainc as betainc
+
+
 # from   scipy.special import gammaln, hyp2f1, hyp1f1
 import matplotlib.pyplot as plt; plt.ion()
 from scipy.integrate import quad
@@ -22,9 +28,7 @@ from numba import vectorize, njit
 import numba as nb
 
 
-from .numbaSpecialFns import numba_gammaln as gammaln
-from .numbaSpecialFns import numba_hyp2f1 as hyp2f1
-from .numbaSpecialFns import numba_betainc as betainc
+
 
 # Source: https://gregorygundersen.com/blog/2020/01/20/multivariate-t/
 # @article{kollo2021multivariate,
@@ -75,6 +79,7 @@ def tspdf_1d(x, loc, scale, df, skew):
 
 @njit
 def tslogpdf_1d(x, loc, scale, df, skew):
+    skew=0
     dim = 1
     vals, vecs = scale, np.array([1])
 
@@ -202,7 +207,7 @@ def getObjectiveFunction(data, use_loglikelihood = False):
 
         llvals = tslogpdf_1d(sorted_data, loc, scale, df, skew)
 
-        return -np.sum(llvals)
+        return -np.mean(llvals)
 
     if use_loglikelihood:
         return loglikelihood
@@ -278,8 +283,36 @@ def tskew_moments(loc, scale, df, skew):
     gamma_div = np.exp(gammaln(0.5 * (df -1)) - gammaln(0.5 * df))
     mu = delta * np.sqrt(df / np.pi) * gamma_div
 
-    expected_value = omega * mu + loc
-    pass
+    expected_value_zero_loc = omega * mu
+    expected_value = expected_value_zero_loc + loc
+
+    second_moment = w**2 * (df / (df - 2))
+
+    variance = second_moment - expected_value_zero_loc**2
+
+
+    skew_f1 = mu
+    skew_f2 = (df * (3 - delta**2) / (df - 3) - 3*df/(df - 2) + 2*mu**2)
+    skew_f3 = np.power(df/(df - 2) - mu**2, -3/2)
+
+    skewness = skew_f1 * skew_f2 * skew_f3
+
+
+
+    kurt_f1_s1 = 3 * df**2 / ((df - 2) * (df-4))
+    kurt_f1_s2 = -(4 * mu**2 * df * (3 - delta**2) / (df - 3))
+    kurt_f1_s3 = 6 * mu**2 * df/(df -2)
+    kurt_f1_s4 = -3*mu**4
+    kurt_f1 = kurt_f1_s1 + kurt_f1_s2 + kurt_f1_s3 + kurt_f1_s4
+
+    kurt_f2_s1 = df/(df - 2)
+    kurt_f2_s2 = -mu**2
+    kurt_f2 = np.power(kurt_f2_s1 + kurt_f2_s2, -2)
+
+    kurtosis = kurt_f1*kurt_f2 - 3
+
+
+    return expected_value, variance, skewness, kurtosis
 
 
 

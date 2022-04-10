@@ -74,11 +74,15 @@ if __name__ == "__main__":
         skew = (3 * loc - median) / np.sqrt(scale)
 
         theta = np.array([loc, scale, df, skew])
+        obj_fun = getObjectiveFunction(realization, use_loglikelihood=True)
+        res = minimize(obj_fun, x0=theta,
+                       method='Nelder-Mead',
+                       options={'maxiter':5000,
+                                'adaptive':True,
+                                'xatol': 1e-6,
+                                'fatol':1e-6})
 
-        res = minimize(getObjectiveFunction(realization, use_loglikelihood=True), x0=theta,
-                       method='Nelder-Mead')
-
-        N = 1_000
+        N = 5_000
         extent =  np.max(realization) - np.min(realization)
         xvals = np.linspace(np.min(realization) - 0.1 * extent, np.max(realization) + 0.1 * extent, N)
 
@@ -92,6 +96,9 @@ if __name__ == "__main__":
         plt.show()
 
         solution_params = res['x']
+        print(res)
         loc_est, scale_est, df_est, skew_est = solution_params
         moments_from_est = tskew_moments(loc_est, scale_est, df_est, skew_est)
         pass
+
+    pass
