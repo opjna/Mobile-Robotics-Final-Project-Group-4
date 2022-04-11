@@ -18,29 +18,14 @@ from scipy.optimize import minimize
 import warnings
 import scipy.io as sio
 import scipy
-# from root_finding import newton, brentq
+from .root_finding import newton, brentq
 
-from scipy.special import gamma
 
 
 plt.close('all')
 from numba import vectorize, njit
 import numba as nb
 
-
-
-
-# Source: https://gregorygundersen.com/blog/2020/01/20/multivariate-t/
-# @article{kollo2021multivariate,
-#   title={Multivariate Skew t-Distribution: Asymptotics for Parameter Estimators and Extension to Skew t-Copula},
-#   author={Kollo, T{\~o}nu and K{\"a}{\"a}rik, Meelis and Selart, Anne},
-#   journal={Symmetry},
-#   volume={13},
-#   number={6},
-#   pages={1059},
-#   year={2021},
-#   publisher={Multidisciplinary Digital Publishing Institute}
-# }
 
 @njit
 def tcdf_1d(x, df):
@@ -234,31 +219,51 @@ def root_Newton_Rhapson(fun, x0, jac, tol=1e-12, maxiter=100):
 
     return x1
 
-def ts_invcdf(q, loc, scale, df, skew):
+def ts_invcdf_opt(q, loc, scale, df, skew):
 
     def ffun(x):
         return tscdf(x, loc, scale, df, skew) - q
 
     def fprime(x):
         return tspdf_1d(x, loc, scale, df, skew)
+
     # Do a single Newton iteration
     p0 = 0.0
     fval = ffun(p0)
     fder = fprime(p0)
     newton_step = fval / fder
+
+
     # Newton step
     p = p0 - newton_step
 
+    while ffun(p) * fval > 0:
+        p = p - newton_step
+
     if p0 < p:
-        r = brentq(f, p0, p)
+        r = brentq(ffun, p0, p)
     else:
-        r = brentq(f, p, p0)
+        r = brentq(ffun, p, p0)
 
     xvals = np.linspace(-20, 20, 1_000)
-    fvals = f(xvals)
+    fvals = ffun(xvals)
     # r = newton(func = f, x0 = 0.0, fprime = fprime)
 
     return r
+
+
+def ts_invcdf(quantiles, loc, scale, df, skew):
+    try:
+        roots = np.zeros_like(quantiles)
+        for count, q in enumerate(quantiles):
+            r = ts_invcdf_opt(q, loc, scale, df, skew)
+            pass
+
+    except:
+        pass
+
+    pass
+
 
 def numerical_inverse(rv_domain, cdf_vals):
     return scipy.interpolate.interp1d(cdf_vals, rv_domain, kind='cubic', fill_value="extrapolate")
