@@ -1,0 +1,8 @@
+jupyter
+matplotlib
+numba
+numpy
+opencv-python
+pandas
+Pillow
+scipy
