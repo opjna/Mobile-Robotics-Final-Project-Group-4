@@ -5,3 +5,26 @@ Final project for Group 4 of Winter 2022 ROB530: Mobile Robotics. This captures 
 Some of the code in this repo references the KITTI dataset, which can be found [here](http://www.cvlibs.net/datasets/kitti/eval_odometry.php).
 
 All of the code included here is python. Dependencies include: numpy, Open CV2, matplotlib, scipy, pandas, PIL, numba.
+
+## To use our software:
+
+### Create virtual environment
+```
+python3 -m venv mobrob-venv
+source mobrob-venv/bin/activate
+```
+
+### Install requirements
+```
+pip install -r requirements.txt
+```
+
+### Run code
+```
+python tmain.py
+python -i src/distribution_tools/tmain.py
+```
+
+
+
+
