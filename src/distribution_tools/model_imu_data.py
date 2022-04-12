@@ -21,6 +21,7 @@ print(result.keys()) # let's check what objects we got
 
 stats.probplot(numpy_data, dist="norm", plot=plt)
 plt.show()
+plt.title('Probability Plot for IMU Dataset')
 
 
 realization = numpy_data
@@ -30,9 +31,9 @@ df = 1000
 skew = 0
 
 theta = np.array([loc, scale, df, skew])
-#
-# res = minimize(getObjectiveFunction(realization, use_loglikelihood=True), x0=theta,
-#                method='Nelder-Mead')
+
+res = minimize(getObjectiveFunction(realization, use_loglikelihood=True), x0=theta,
+               method='Nelder-Mead')
 
 N = 1_000
 xmin = -0.05
@@ -40,16 +41,12 @@ xmax = 0.05
 extent =  xmax - xmin
 xvals = np.linspace(xmin - 0.1 * extent, xmax + 0.1 * extent, N)
 
-# plt.figure()
-# est_pdf = tspdf_1d(xvals, res.x[0], res.x[1], res.x[2], res.x[3])
-# plt.hist(realization, bins=500, density=True, color='green', alpha=0.5)
-# plt.plot(xvals, est_pdf, linestyle='--', label='Estimated skew t', linewidth=3, alpha=0.5)
-# plt.xlim([xmin, xmax])
-# plt.legend()
+plt.figure()
+est_pdf = tspdf_1d(xvals, res.x[0], res.x[1], res.x[2], res.x[3])
+plt.hist(realization, bins=500, density=True, color='green', alpha=0.5)
+plt.plot(xvals, est_pdf, linestyle='--', label='Estimated skew t', linewidth=3, alpha=0.5)
+plt.xlim([xmin, xmax])
+plt.title(r'IMU Data Modeled Using Skew-$t$ Distribution')
+plt.legend()
 
-loc = 2.72e-5
-scale = 2.25e-6
-df = 1
-skew = 2.8e-3
 
-# median = ts_invcdf(np.array([0.25, 0.5, 0.75]), loc, scale, df, skew)

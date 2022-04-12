@@ -21,7 +21,6 @@ pip install -r requirements.txt
 
 ### Run code
 ```
-python tmain.py
 python -i src/distribution_tools/tmain.py
 ```
 
